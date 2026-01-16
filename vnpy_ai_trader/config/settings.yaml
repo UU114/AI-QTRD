@@ -1,0 +1,49 @@
+# VNPy AI Trader Configuration
+# AI交易系统全局配置
+
+# DeepSeek API Configuration
+# DeepSeek API配置
+deepseek:
+  api_key: ""                    # Set via environment variable DEEPSEEK_API_KEY
+  base_url: "https://api.deepseek.com"
+  model: "deepseek-chat"
+  max_tokens: 4096
+  temperature: 0.1               # Low temperature for consistent output
+  timeout: 30                    # Request timeout in seconds
+  retry_count: 3                 # Number of retries on failure
+
+# Data Source Configuration
+# 数据源配置
+datafeed:
+  name: "adata"                  # Default data source
+  cache_enabled: true            # Enable local data caching
+  cache_dir: "./data/cache"      # Cache directory path
+
+# Trading Configuration
+# 交易配置
+trading:
+  mode: "backtest"               # backtest / paper / live
+  default_gateway: "qmt"
+
+# Risk Control Configuration
+# 风控配置
+risk:
+  max_positions: 30              # Maximum number of positions
+  single_position_ratio: 0.03    # Single position as ratio of total capital
+  max_drawdown: 0.15             # Maximum drawdown limit
+  daily_loss_limit: 0.05         # Daily loss limit
+
+# Web Server Configuration
+# Web服务器配置
+web:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+
+# Logging Configuration
+# 日志配置
+logging:
+  level: "INFO"                  # DEBUG / INFO / WARNING / ERROR
+  file: "./logs/ai_trader.log"
+  rotation: "1 day"
+  retention: "30 days"

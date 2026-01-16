@@ -1,0 +1,38 @@
+# VNPy AI Trader Dependencies
+# 核心依赖 / Core Dependencies
+
+# VNPy framework (should be installed separately)
+# vnpy>=4.0.0
+
+# AI/LLM
+openai>=1.0.0                # DeepSeek API compatible with OpenAI SDK
+
+# Data Sources
+adata>=0.1.0                 # Free A-share data library
+requests>=2.31.0             # HTTP requests for news fetching
+
+# Web Framework
+fastapi>=0.109.0             # Web API framework
+uvicorn>=0.27.0              # ASGI server
+websockets>=12.0             # WebSocket support
+python-multipart>=0.0.6      # Form data parsing
+
+# Data Processing
+polars>=1.0.0                # High-performance DataFrame (vnpy 4.x standard)
+pandas>=2.0.0                # Data manipulation (for compatibility)
+numpy>=1.26.0                # Numerical computing
+
+# Utilities
+pyyaml>=6.0.1                # YAML configuration
+jsonschema>=4.21.0           # JSON schema validation
+loguru>=0.7.0                # Logging
+python-dotenv>=1.0.0         # Environment variables
+pydantic>=2.5.0              # Data validation
+
+# Testing
+pytest>=8.0.0                # Testing framework
+pytest-asyncio>=0.23.0       # Async test support
+
+# Development (optional)
+ruff>=0.2.0                  # Linting
+mypy>=1.8.0                  # Type checking

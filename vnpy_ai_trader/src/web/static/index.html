@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNPy AI Trader</title>
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #f5222d;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #d9d9d9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #fafafa;
+            font-weight: 600;
+        }
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .stat-value.positive {
+            color: var(--success-color);
+        }
+
+        .stat-value.negative {
+            color: var(--error-color);
+        }
+
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            color: #00ff00;
+            margin-bottom: 4px;
+        }
+
+        .log-entry.error {
+            color: #ff4444;
+        }
+
+        .log-entry.warning {
+            color: #ffaa00;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .tag-success {
+            background-color: #f6ffed;
+            color: var(--success-color);
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-error {
+            background-color: #fff1f0;
+            color: var(--error-color);
+            border: 1px solid #ffa39e;
+        }
+
+        .tag-warning {
+            background-color: #fffbe6;
+            color: var(--warning-color);
+            border: 1px solid #ffe58f;
+        }
+
+        .tag-info {
+            background-color: #e6f7ff;
+            color: var(--primary-color);
+            border: 1px solid #91d5ff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content.wide {
+            max-width: 900px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1890ff, #52c41a);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            height: 300px;
+            background: #fafafa;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        /* Statistics Grid for Backtest Results */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stats-grid .stat-item {
+            text-align: center;
+        }
+
+        /* Full Width Card */
+        .card-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Running Job Indicator */
+        .job-running {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--warning-color);
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ffd591;
+            border-top-color: var(--warning-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VNPy AI Trader</h1>
+            <div class="status-indicator">
+                <div class="status-dot" id="wsStatus"></div>
+                <span id="wsStatusText">Connecting...</span>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Account Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Account Summary / 账户概览</span>
+                    <button class="btn btn-small btn-primary" onclick="refreshAccount()">Refresh</button>
+                </div>
+                <div class="stat-grid" id="accountStats">
+                    <div class="stat-item">
+                        <div class="stat-label">Balance / 余额</div>
+                        <div class="stat-value" id="balance">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Available / 可用</div>
+                        <div class="stat-value" id="available">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Total P&L / 总盈亏</div>
+                        <div class="stat-value" id="totalPnl">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Return / 收益率</div>
+                        <div class="stat-value" id="returnPct">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategy Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Strategy / 策略</span>
+                    <button class="btn btn-small btn-primary" onclick="showStrategyModal()">+ New</button>
+                </div>
+                <div id="strategyList">
+                    <div class="empty-state">No strategies / 暂无策略</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Preparation Section -->
+        <div class="section-header">
+            <h2>Data Preparation / 数据准备</h2>
+            <div class="btn-group">
+                <span id="downloadJobStatus"></span>
+                <button class="btn btn-primary" onclick="showDownloadModal()">Download Data / 下载数据</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Local Data -->
+            <div class="card card-full">
+                <div class="card-header">
+                    <span class="card-title">Local Data / 本地数据</span>
+                    <button class="btn btn-small btn-primary" onclick="refreshLocalData()">Refresh</button>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" onclick="switchDataTab('daily')">Daily / 日线</div>
+                    <div class="tab" onclick="switchDataTab('minute')">Minute / 分钟</div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symbol / 代码</th>
+                                <th>Exchange / 交易所</th>
+                                <th>Bars / K线数</th>
+                                <th>Start Date / 开始日期</th>
+                                <th>End Date / 结束日期</th>
+                                <th>Size / 大小</th>
+                                <th>Action / 操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="localDataBody">
+                            <tr><td colspan="7" class="empty-state">No data downloaded / 暂无数据</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backtest Section -->
+        <div class="section-header" style="margin-top: 20px;">
+            <h2>Backtest / 回测</h2>
+            <div class="btn-group">
+                <span id="backtestJobStatus"></span>
+                <button class="btn btn-primary" onclick="showBacktestModal()">New Backtest / 新回测</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Backtest History -->
+            <div class="card card-full">
+                <div class="card-header">
+                    <span class="card-title">Backtest History / 回测历史</span>
+                    <button class="btn btn-small btn-primary" onclick="refreshBacktests()">Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Strategy / 策略</th>
+                                <th>Symbols / 标的</th>
+                                <th>Period / 周期</th>
+                                <th>Return / 收益</th>
+                                <th>Sharpe</th>
+                                <th>Max DD / 最大回撤</th>
+                                <th>Status / 状态</th>
+                                <th>Action / 操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backtestBody">
+                            <tr><td colspan="9" class="empty-state">No backtests / 暂无回测</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Section -->
+        <div class="section-header" style="margin-top: 20px;">
+            <h2>Trading / 交易</h2>
+        </div>
+
+        <div class="grid">
+            <!-- Order Form -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Quick Order / 快速下单</span>
+                </div>
+                <form id="orderForm" onsubmit="submitOrder(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Symbol / 代码</label>
+                            <input type="text" id="orderSymbol" placeholder="000001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Exchange / 交易所</label>
+                            <select id="orderExchange">
+                                <option value="SZSE">SZSE</option>
+                                <option value="SSE">SSE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Direction / 方向</label>
+                            <select id="orderDirection">
+                                <option value="LONG">Buy / 买入</option>
+                                <option value="SHORT">Sell / 卖出</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Type / 类型</label>
+                            <select id="orderType">
+                                <option value="LIMIT">Limit / 限价</option>
+                                <option value="MARKET">Market / 市价</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price / 价格</label>
+                            <input type="number" id="orderPrice" step="0.01" placeholder="10.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Volume / 数量</label>
+                            <input type="number" id="orderVolume" step="100" min="100" placeholder="100" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Order / 提交订单</button>
+                </form>
+            </div>
+
+            <!-- Positions -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Positions / 持仓</span>
+                    <button class="btn btn-small btn-primary" onclick="refreshPositions()">Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Volume</th>
+                                <th>Avg Price</th>
+                                <th>P&L</th>
+                            </tr>
+                        </thead>
+                        <tbody id="positionsBody">
+                            <tr><td colspan="4" class="empty-state">No positions</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders -->
+            <div class="card card-full">
+                <div class="card-header">
+                    <span class="card-title">Orders / 订单</span>
+                    <button class="btn btn-small btn-primary" onclick="refreshOrders()">Refresh</button>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" onclick="switchOrderTab('active')">Active / 活动</div>
+                    <div class="tab" onclick="switchOrderTab('all')">All / 全部</div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Symbol</th>
+                                <th>Direction</th>
+                                <th>Price</th>
+                                <th>Volume</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <tr><td colspan="7" class="empty-state">No orders</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Logs -->
+            <div class="card card-full">
+                <div class="card-header">
+                    <span class="card-title">System Log / 系统日志</span>
+                    <button class="btn btn-small btn-danger" onclick="clearLogs()">Clear</button>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry">System initialized / 系统已初始化</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Data Modal -->
+    <div class="modal" id="downloadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Download Data / 下载数据</h3>
+                <button class="modal-close" onclick="closeDownloadModal()">&times;</button>
+            </div>
+            <form onsubmit="startDownload(event)">
+                <div class="form-group">
+                    <label>Symbols (comma-separated) / 标的代码（逗号分隔）</label>
+                    <input type="text" id="downloadSymbols" placeholder="000001,000002,600000" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date / 开始日期</label>
+                        <input type="date" id="downloadStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date / 结束日期</label>
+                        <input type="date" id="downloadEndDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Interval / 周期</label>
+                    <select id="downloadInterval">
+                        <option value="daily">Daily / 日线</option>
+                        <option value="minute">Minute / 分钟</option>
+                    </select>
+                </div>
+                <div id="downloadProgress" style="display: none;">
+                    <div class="progress-text" id="downloadProgressText">Downloading...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="downloadProgressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="downloadBtn">Start Download / 开始下载</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Backtest Modal -->
+    <div class="modal" id="backtestModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Backtest / 新回测</h3>
+                <button class="modal-close" onclick="closeBacktestModal()">&times;</button>
+            </div>
+            <form onsubmit="startBacktest(event)">
+                <div class="tabs" style="margin-bottom: 16px;">
+                    <div class="tab active" onclick="switchStrategyInputTab('nl')">Natural Language / 自然语言</div>
+                    <div class="tab" onclick="switchStrategyInputTab('json')">JSON Config / JSON配置</div>
+                </div>
+
+                <div id="nlStrategyInput" class="tab-content active">
+                    <div class="form-group">
+                        <label>Strategy Description / 策略描述</label>
+                        <textarea id="backtestStrategyNL" rows="4" placeholder="RSI低于30时买入，盈利10%或亏损5%时卖出"></textarea>
+                    </div>
+                </div>
+
+                <div id="jsonStrategyInput" class="tab-content">
+                    <div class="form-group">
+                        <label>Strategy JSON / 策略JSON</label>
+                        <textarea id="backtestStrategyJSON" rows="6" placeholder='{"strategy_name": "demo", "entry_rules": {...}, "exit_rules": {...}}'></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Symbols (comma-separated) / 标的代码（逗号分隔）</label>
+                    <input type="text" id="backtestSymbols" placeholder="000001,000002,600000" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date / 开始日期</label>
+                        <input type="date" id="backtestStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date / 结束日期</label>
+                        <input type="date" id="backtestEndDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Capital / 初始资金</label>
+                        <input type="number" id="backtestCapital" value="1000000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interval / 周期</label>
+                        <select id="backtestInterval">
+                            <option value="daily">Daily / 日线</option>
+                            <option value="minute">Minute / 分钟</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="backtestProgress" style="display: none;">
+                    <div class="progress-text" id="backtestProgressText">Running backtest...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="backtestProgressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="backtestBtn">Run Backtest / 运行回测</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Backtest Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h3>Backtest Result / 回测结果</h3>
+                <button class="modal-close" onclick="closeResultModal()">&times;</button>
+            </div>
+            <div id="resultContent">
+                <div class="stats-grid" id="resultStats"></div>
+                <div class="chart-container" id="equityChart">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Strategy Modal -->
+    <div class="modal" id="strategyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Strategy / 创建策略</h3>
+                <button class="modal-close" onclick="closeStrategyModal()">&times;</button>
+            </div>
+            <form onsubmit="createStrategy(event)">
+                <div class="form-group">
+                    <label>Strategy ID / 策略ID</label>
+                    <input type="text" id="strategyId" placeholder="my_strategy" required>
+                </div>
+                <div class="form-group">
+                    <label>Description (Natural Language) / 描述 (自然语言)</label>
+                    <textarea id="strategyDesc" rows="4" placeholder="RSI低于30时买入，盈利10%或亏损5%时卖出" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create / 创建</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Base URL
+        const API_BASE = '';
+
+        // WebSocket connection
+        let ws = null;
+        let wsReconnectTimeout = null;
+
+        // Current state
+        let currentDataInterval = 'daily';
+        let currentOrderTab = 'active';
+        let currentStrategyInputMode = 'nl';
+        let activeDownloadJob = null;
+        let activeBacktestJob = null;
+
+        // Initialize WebSocket
+        function initWebSocket() {
+            const wsUrl = `ws://${window.location.host}/ws`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                document.getElementById('wsStatus').style.backgroundColor = '#52c41a';
+                document.getElementById('wsStatusText').textContent = 'Connected';
+                addLog('WebSocket connected', 'info');
+            };
+
+            ws.onclose = () => {
+                document.getElementById('wsStatus').style.backgroundColor = '#f5222d';
+                document.getElementById('wsStatusText').textContent = 'Disconnected';
+                addLog('WebSocket disconnected', 'warning');
+                wsReconnectTimeout = setTimeout(initWebSocket, 3000);
+            };
+
+            ws.onerror = (error) => {
+                addLog('WebSocket error', 'error');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+        }
+
+        // Handle WebSocket messages
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'tick':
+                    addLog(`Tick: ${data.symbol} @ ${data.data.last_price}`, 'info');
+                    break;
+                case 'order':
+                    addLog(`Order: ${data.data.orderid} - ${data.data.status}`, 'info');
+                    refreshOrders();
+                    break;
+                case 'trade':
+                    addLog(`Trade: ${data.data.symbol} ${data.data.direction} ${data.data.volume} @ ${data.data.price}`, 'info');
+                    refreshAccount();
+                    refreshPositions();
+                    break;
+                case 'position':
+                    refreshPositions();
+                    break;
+                case 'account':
+                    updateAccountDisplay(data.data);
+                    break;
+                case 'log':
+                    addLog(data.message, data.level);
+                    break;
+
+                // Job progress events
+                case 'download_progress':
+                    handleDownloadProgress(data);
+                    break;
+                case 'backtest_progress':
+                    handleBacktestProgress(data);
+                    break;
+                case 'job_completed':
+                    handleJobCompleted(data);
+                    break;
+                case 'job_failed':
+                    handleJobFailed(data);
+                    break;
+            }
+        }
+
+        // Download progress handler
+        function handleDownloadProgress(data) {
+            const progressEl = document.getElementById('downloadProgress');
+            const textEl = document.getElementById('downloadProgressText');
+            const fillEl = document.getElementById('downloadProgressFill');
+
+            progressEl.style.display = 'block';
+            textEl.textContent = `Downloading ${data.current_symbol || '...'} (${data.current_index || 0}/${data.total_symbols || 0})`;
+            fillEl.style.width = `${data.progress_percent || 0}%`;
+
+            updateJobStatus('downloadJobStatus', 'downloading', data.progress_percent);
+        }
+
+        // Backtest progress handler
+        function handleBacktestProgress(data) {
+            const progressEl = document.getElementById('backtestProgress');
+            const textEl = document.getElementById('backtestProgressText');
+            const fillEl = document.getElementById('backtestProgressFill');
+
+            progressEl.style.display = 'block';
+            textEl.textContent = `Phase: ${data.phase || 'running'} (${(data.progress_percent || 0).toFixed(0)}%)`;
+            fillEl.style.width = `${data.progress_percent || 0}%`;
+
+            updateJobStatus('backtestJobStatus', 'running', data.progress_percent);
+        }
+
+        // Job completed handler
+        function handleJobCompleted(data) {
+            addLog(`Job completed: ${data.job_type} - ${data.job_id}`, 'info');
+
+            if (data.job_type === 'download') {
+                activeDownloadJob = null;
+                document.getElementById('downloadProgress').style.display = 'none';
+                document.getElementById('downloadBtn').disabled = false;
+                document.getElementById('downloadJobStatus').innerHTML = '';
+                closeDownloadModal();
+                refreshLocalData();
+            } else if (data.job_type === 'backtest') {
+                activeBacktestJob = null;
+                document.getElementById('backtestProgress').style.display = 'none';
+                document.getElementById('backtestBtn').disabled = false;
+                document.getElementById('backtestJobStatus').innerHTML = '';
+                closeBacktestModal();
+                refreshBacktests();
+            }
+        }
+
+        // Job failed handler
+        function handleJobFailed(data) {
+            addLog(`Job failed: ${data.job_type} - ${data.error}`, 'error');
+
+            if (data.job_type === 'download') {
+                activeDownloadJob = null;
+                document.getElementById('downloadProgress').style.display = 'none';
+                document.getElementById('downloadBtn').disabled = false;
+                document.getElementById('downloadJobStatus').innerHTML = '';
+            } else if (data.job_type === 'backtest') {
+                activeBacktestJob = null;
+                document.getElementById('backtestProgress').style.display = 'none';
+                document.getElementById('backtestBtn').disabled = false;
+                document.getElementById('backtestJobStatus').innerHTML = '';
+            }
+        }
+
+        // Update job status indicator
+        function updateJobStatus(elementId, status, progress) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<span class="job-running"><div class="spinner"></div>${status} ${progress.toFixed(0)}%</span>`;
+        }
+
+        // API Calls
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+
+            const response = await fetch(`${API_BASE}${endpoint}`, options);
+            return response.json();
+        }
+
+        // Account functions
+        async function refreshAccount() {
+            try {
+                const result = await apiCall('/api/account/info');
+                if (result.success) {
+                    updateAccountDisplay(result.account);
+                }
+            } catch (e) {
+                addLog('Failed to fetch account', 'error');
+            }
+        }
+
+        function updateAccountDisplay(account) {
+            document.getElementById('balance').textContent = formatNumber(account.balance);
+            document.getElementById('available').textContent = formatNumber(account.available || (account.balance - account.frozen));
+
+            const pnl = account.total_pnl || 0;
+            const pnlEl = document.getElementById('totalPnl');
+            pnlEl.textContent = formatNumber(pnl);
+            pnlEl.className = 'stat-value ' + (pnl >= 0 ? 'positive' : 'negative');
+
+            const ret = account.return_pct || 0;
+            const retEl = document.getElementById('returnPct');
+            retEl.textContent = ret.toFixed(2) + '%';
+            retEl.className = 'stat-value ' + (ret >= 0 ? 'positive' : 'negative');
+        }
+
+        // Positions
+        async function refreshPositions() {
+            try {
+                const result = await apiCall('/api/account/positions');
+                if (result.success) {
+                    updatePositionsTable(result.positions);
+                }
+            } catch (e) {
+                addLog('Failed to fetch positions', 'error');
+            }
+        }
+
+        function updatePositionsTable(positions) {
+            const tbody = document.getElementById('positionsBody');
+            if (!positions || positions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No positions</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = positions.map(pos => `
+                <tr>
+                    <td>${pos.symbol}.${pos.exchange}</td>
+                    <td>${pos.volume}</td>
+                    <td>${formatNumber(pos.avg_price)}</td>
+                    <td class="${pos.pnl >= 0 ? 'positive' : 'negative'}">${formatNumber(pos.pnl)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Orders
+        function switchOrderTab(tab) {
+            currentOrderTab = tab;
+            document.querySelectorAll('#ordersBody').closest('.card').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            refreshOrders();
+        }
+
+        async function refreshOrders() {
+            try {
+                const endpoint = currentOrderTab === 'active' ? '/api/trading/orders/active' : '/api/trading/orders';
+                const result = await apiCall(endpoint);
+                if (result.success) {
+                    updateOrdersTable(result.orders);
+                }
+            } catch (e) {
+                addLog('Failed to fetch orders', 'error');
+            }
+        }
+
+        function updateOrdersTable(orders) {
+            const tbody = document.getElementById('ordersBody');
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No orders</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>${order.orderid}</td>
+                    <td>${order.symbol}.${order.exchange}</td>
+                    <td><span class="tag ${order.direction === 'LONG' ? 'tag-success' : 'tag-error'}">${order.direction}</span></td>
+                    <td>${formatNumber(order.price)}</td>
+                    <td>${order.traded}/${order.volume}</td>
+                    <td><span class="tag tag-info">${order.status}</span></td>
+                    <td>
+                        ${order.status === 'NOTTRADED' || order.status === 'PARTTRADED' ?
+                            `<button class="btn btn-small btn-danger" onclick="cancelOrder('${order.orderid}')">Cancel</button>` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Submit order
+        async function submitOrder(event) {
+            event.preventDefault();
+
+            const order = {
+                symbol: document.getElementById('orderSymbol').value,
+                exchange: document.getElementById('orderExchange').value,
+                direction: document.getElementById('orderDirection').value,
+                order_type: document.getElementById('orderType').value,
+                price: parseFloat(document.getElementById('orderPrice').value),
+                volume: parseInt(document.getElementById('orderVolume').value)
+            };
+
+            try {
+                const result = await apiCall('/api/trading/order', 'POST', order);
+                if (result.success) {
+                    addLog(`Order submitted: ${result.orderid}`, 'info');
+                    refreshOrders();
+                    refreshAccount();
+                } else {
+                    addLog(`Order failed: ${result.detail}`, 'error');
+                }
+            } catch (e) {
+                addLog('Failed to submit order', 'error');
+            }
+        }
+
+        // Cancel order
+        async function cancelOrder(orderid) {
+            try {
+                const result = await apiCall('/api/trading/cancel', 'POST', { orderid });
+                if (result.success) {
+                    addLog(`Cancel requested: ${orderid}`, 'info');
+                    refreshOrders();
+                }
+            } catch (e) {
+                addLog('Failed to cancel order', 'error');
+            }
+        }
+
+        // ====================
+        // Data Preparation
+        // ====================
+
+        function showDownloadModal() {
+            // Set default dates
+            const today = new Date();
+            const oneYearAgo = new Date(today);
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+            document.getElementById('downloadEndDate').value = today.toISOString().split('T')[0];
+            document.getElementById('downloadStartDate').value = oneYearAgo.toISOString().split('T')[0];
+
+            document.getElementById('downloadModal').classList.add('active');
+        }
+
+        function closeDownloadModal() {
+            document.getElementById('downloadModal').classList.remove('active');
+        }
+
+        function switchDataTab(interval) {
+            currentDataInterval = interval;
+            document.querySelectorAll('.card-full .tabs .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            refreshLocalData();
+        }
+
+        async function refreshLocalData() {
+            try {
+                const result = await apiCall(`/api/data/symbols?interval=${currentDataInterval}`);
+                if (result.success) {
+                    updateLocalDataTable(result.symbols);
+                }
+            } catch (e) {
+                addLog('Failed to fetch local data', 'error');
+            }
+        }
+
+        function updateLocalDataTable(symbols) {
+            const tbody = document.getElementById('localDataBody');
+            if (!symbols || symbols.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No data downloaded / 暂无数据</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = symbols.map(s => `
+                <tr>
+                    <td>${s.symbol}</td>
+                    <td>${s.exchange}</td>
+                    <td>${s.bar_count}</td>
+                    <td>${s.start_date || '-'}</td>
+                    <td>${s.end_date || '-'}</td>
+                    <td>${s.file_size_kb} KB</td>
+                    <td>
+                        <button class="btn btn-small btn-danger" onclick="deleteSymbolData('${s.vt_symbol}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function startDownload(event) {
+            event.preventDefault();
+
+            const symbols = document.getElementById('downloadSymbols').value.split(',').map(s => s.trim()).filter(s => s);
+            const data = {
+                symbols: symbols,
+                start_date: document.getElementById('downloadStartDate').value,
+                end_date: document.getElementById('downloadEndDate').value,
+                interval: document.getElementById('downloadInterval').value
+            };
+
+            try {
+                document.getElementById('downloadBtn').disabled = true;
+                const result = await apiCall('/api/data/download', 'POST', data);
+
+                if (result.success) {
+                    activeDownloadJob = result.job_id;
+                    addLog(`Download started: ${result.job_id}`, 'info');
+                } else {
+                    addLog(`Download failed: ${result.detail}`, 'error');
+                    document.getElementById('downloadBtn').disabled = false;
+                }
+            } catch (e) {
+                addLog('Failed to start download', 'error');
+                document.getElementById('downloadBtn').disabled = false;
+            }
+        }
+
+        async function deleteSymbolData(vtSymbol) {
+            if (!confirm(`Delete data for ${vtSymbol}?`)) return;
+
+            try {
+                const result = await apiCall(`/api/data/${encodeURIComponent(vtSymbol)}?interval=${currentDataInterval}`, 'DELETE');
+                if (result.success) {
+                    addLog(`Deleted: ${vtSymbol}`, 'info');
+                    refreshLocalData();
+                }
+            } catch (e) {
+                addLog('Failed to delete data', 'error');
+            }
+        }
+
+        // ====================
+        // Backtest
+        // ====================
+
+        function showBacktestModal() {
+            // Set default dates
+            const today = new Date();
+            const oneYearAgo = new Date(today);
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+            document.getElementById('backtestEndDate').value = today.toISOString().split('T')[0];
+            document.getElementById('backtestStartDate').value = oneYearAgo.toISOString().split('T')[0];
+
+            document.getElementById('backtestModal').classList.add('active');
+        }
+
+        function closeBacktestModal() {
+            document.getElementById('backtestModal').classList.remove('active');
+        }
+
+        function switchStrategyInputTab(mode) {
+            currentStrategyInputMode = mode;
+            document.querySelectorAll('#backtestModal .tabs .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('nlStrategyInput').classList.toggle('active', mode === 'nl');
+            document.getElementById('jsonStrategyInput').classList.toggle('active', mode === 'json');
+        }
+
+        async function refreshBacktests() {
+            try {
+                const result = await apiCall('/api/backtest/list');
+                if (result.success) {
+                    updateBacktestTable(result.results);
+                }
+            } catch (e) {
+                addLog('Failed to fetch backtests', 'error');
+            }
+        }
+
+        function updateBacktestTable(results) {
+            const tbody = document.getElementById('backtestBody');
+            if (!results || results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No backtests / 暂无回测</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = results.map(r => {
+                const stats = r.statistics || {};
+                return `
+                <tr>
+                    <td>${r.job_id.substring(0, 8)}...</td>
+                    <td>${r.strategy_name || '-'}</td>
+                    <td>${(r.symbols || []).slice(0, 3).join(', ')}${r.symbols && r.symbols.length > 3 ? '...' : ''}</td>
+                    <td>${r.created_at ? r.created_at.split('T')[0] : '-'}</td>
+                    <td class="${(stats.total_return || 0) >= 0 ? 'positive' : 'negative'}">${formatPercent(stats.total_return)}</td>
+                    <td>${stats.sharpe_ratio ? stats.sharpe_ratio.toFixed(2) : '-'}</td>
+                    <td class="negative">${formatPercent(stats.max_drawdown)}</td>
+                    <td><span class="tag ${r.status === 'completed' ? 'tag-success' : 'tag-error'}">${r.status}</span></td>
+                    <td>
+                        <button class="btn btn-small btn-primary" onclick="viewBacktestResult('${r.job_id}')">View</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteBacktest('${r.job_id}')">Delete</button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        async function startBacktest(event) {
+            event.preventDefault();
+
+            const symbols = document.getElementById('backtestSymbols').value.split(',').map(s => s.trim()).filter(s => s);
+
+            const data = {
+                symbols: symbols,
+                start_date: document.getElementById('backtestStartDate').value,
+                end_date: document.getElementById('backtestEndDate').value,
+                capital: parseInt(document.getElementById('backtestCapital').value),
+                interval: document.getElementById('backtestInterval').value
+            };
+
+            // Add strategy based on input mode
+            if (currentStrategyInputMode === 'nl') {
+                const desc = document.getElementById('backtestStrategyNL').value.trim();
+                if (desc) {
+                    data.strategy_description = desc;
+                }
+            } else {
+                const jsonStr = document.getElementById('backtestStrategyJSON').value.trim();
+                if (jsonStr) {
+                    try {
+                        data.strategy_config = JSON.parse(jsonStr);
+                    } catch (e) {
+                        addLog('Invalid JSON configuration', 'error');
+                        return;
+                    }
+                }
+            }
+
+            try {
+                document.getElementById('backtestBtn').disabled = true;
+                const result = await apiCall('/api/backtest/run', 'POST', data);
+
+                if (result.success) {
+                    activeBacktestJob = result.job_id;
+                    addLog(`Backtest started: ${result.job_id}`, 'info');
+                } else {
+                    addLog(`Backtest failed: ${result.detail || result.message}`, 'error');
+                    document.getElementById('backtestBtn').disabled = false;
+                }
+            } catch (e) {
+                addLog('Failed to start backtest', 'error');
+                document.getElementById('backtestBtn').disabled = false;
+            }
+        }
+
+        async function viewBacktestResult(jobId) {
+            try {
+                const result = await apiCall(`/api/backtest/results/${jobId}`);
+                if (result.success) {
+                    showResultModal(result.result);
+                } else {
+                    addLog('Failed to load result', 'error');
+                }
+            } catch (e) {
+                addLog('Failed to load result', 'error');
+            }
+        }
+
+        function showResultModal(result) {
+            const stats = result.statistics || {};
+            const statsGrid = document.getElementById('resultStats');
+
+            statsGrid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">Total Return / 总收益</div>
+                    <div class="stat-value ${(stats.total_return || 0) >= 0 ? 'positive' : 'negative'}">${formatPercent(stats.total_return)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Annual Return / 年化收益</div>
+                    <div class="stat-value ${(stats.annual_return || 0) >= 0 ? 'positive' : 'negative'}">${formatPercent(stats.annual_return)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Sharpe Ratio / 夏普比率</div>
+                    <div class="stat-value">${stats.sharpe_ratio ? stats.sharpe_ratio.toFixed(2) : '-'}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Max Drawdown / 最大回撤</div>
+                    <div class="stat-value negative">${formatPercent(stats.max_drawdown)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Win Rate / 胜率</div>
+                    <div class="stat-value">${formatPercent(stats.win_rate)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Trades / 总交易</div>
+                    <div class="stat-value">${stats.total_trade_count || 0}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Profit Factor / 盈亏比</div>
+                    <div class="stat-value">${stats.profit_factor ? stats.profit_factor.toFixed(2) : '-'}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Daily Trades / 日均交易</div>
+                    <div class="stat-value">${stats.daily_trade_count ? stats.daily_trade_count.toFixed(1) : '-'}</div>
+                </div>
+            `;
+
+            // Draw equity curve if data available
+            if (result.daily_data && result.daily_data.dates && result.daily_data.balance) {
+                drawEquityCurve(result.daily_data);
+            } else {
+                document.getElementById('equityChart').innerHTML = '<div style="color: #888;">No equity curve data available</div>';
+            }
+
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.remove('active');
+        }
+
+        function drawEquityCurve(dailyData) {
+            const canvas = document.getElementById('chartCanvas');
+            const container = document.getElementById('equityChart');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = container.clientWidth - 40;
+            canvas.height = container.clientHeight - 40;
+
+            const dates = dailyData.dates;
+            const balance = dailyData.balance;
+
+            if (!dates || !balance || dates.length === 0) {
+                ctx.fillStyle = '#888';
+                ctx.textAlign = 'center';
+                ctx.fillText('No data', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            // Calculate bounds
+            const minVal = Math.min(...balance);
+            const maxVal = Math.max(...balance);
+            const range = maxVal - minVal || 1;
+
+            const padding = 50;
+            const width = canvas.width - padding * 2;
+            const height = canvas.height - padding * 2;
+
+            // Clear canvas
+            ctx.fillStyle = '#fafafa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (height * i / 5);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+
+                // Y-axis labels
+                const val = maxVal - (range * i / 5);
+                ctx.fillStyle = '#888';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(formatNumber(val), padding - 5, y + 3);
+            }
+
+            // Draw equity curve
+            ctx.strokeStyle = '#1890ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            for (let i = 0; i < balance.length; i++) {
+                const x = padding + (width * i / (balance.length - 1));
+                const y = padding + height - ((balance[i] - minVal) / range * height);
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Fill area under curve
+            ctx.lineTo(padding + width, padding + height);
+            ctx.lineTo(padding, padding + height);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(24, 144, 255, 0.1)';
+            ctx.fill();
+        }
+
+        async function deleteBacktest(jobId) {
+            if (!confirm(`Delete backtest ${jobId}?`)) return;
+
+            try {
+                const result = await apiCall(`/api/backtest/${jobId}`, 'DELETE');
+                if (result.success) {
+                    addLog(`Deleted backtest: ${jobId}`, 'info');
+                    refreshBacktests();
+                }
+            } catch (e) {
+                addLog('Failed to delete backtest', 'error');
+            }
+        }
+
+        // ====================
+        // Strategy
+        // ====================
+
+        function showStrategyModal() {
+            document.getElementById('strategyModal').classList.add('active');
+        }
+
+        function closeStrategyModal() {
+            document.getElementById('strategyModal').classList.remove('active');
+        }
+
+        async function createStrategy(event) {
+            event.preventDefault();
+
+            const data = {
+                strategy_id: document.getElementById('strategyId').value,
+                description: document.getElementById('strategyDesc').value
+            };
+
+            try {
+                const result = await apiCall('/api/strategy/create-from-nl', 'POST', data);
+                if (result.success) {
+                    addLog(`Strategy created: ${data.strategy_id}`, 'info');
+                    closeStrategyModal();
+                    refreshStrategies();
+                } else {
+                    addLog(`Strategy failed: ${result.detail}`, 'error');
+                }
+            } catch (e) {
+                addLog('Failed to create strategy', 'error');
+            }
+        }
+
+        async function refreshStrategies() {
+            try {
+                const result = await apiCall('/api/strategy/list');
+                if (result.success) {
+                    updateStrategyList(result.strategies);
+                }
+            } catch (e) {
+                addLog('Failed to fetch strategies', 'error');
+            }
+        }
+
+        function updateStrategyList(strategies) {
+            const container = document.getElementById('strategyList');
+            if (!strategies || strategies.length === 0) {
+                container.innerHTML = '<div class="empty-state">No strategies / 暂无策略</div>';
+                return;
+            }
+
+            container.innerHTML = strategies.map(s => `
+                <div style="padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>${s.id}</strong>
+                        <span class="tag ${s.status === 'active' ? 'tag-success' : 'tag-info'}">${s.status}</span>
+                    </div>
+                    <div style="font-size: 12px; color: #888; margin-top: 4px;">${s.description || 'No description'}</div>
+                    <div style="margin-top: 8px;">
+                        ${s.status !== 'active' ?
+                            `<button class="btn btn-small btn-success" onclick="activateStrategy('${s.id}')">Activate</button>` :
+                            `<button class="btn btn-small btn-warning" onclick="deactivateStrategy('${s.id}')">Deactivate</button>`}
+                        <button class="btn btn-small btn-danger" onclick="deleteStrategy('${s.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function activateStrategy(id) {
+            await apiCall(`/api/strategy/${id}/activate`, 'POST');
+            refreshStrategies();
+        }
+
+        async function deactivateStrategy(id) {
+            await apiCall(`/api/strategy/${id}/deactivate`, 'POST');
+            refreshStrategies();
+        }
+
+        async function deleteStrategy(id) {
+            if (confirm(`Delete strategy ${id}?`)) {
+                await apiCall(`/api/strategy/${id}`, 'DELETE');
+                refreshStrategies();
+            }
+        }
+
+        // ====================
+        // Logging
+        // ====================
+
+        function addLog(message, level = 'info') {
+            const container = document.getElementById('logContainer');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${level}`;
+            entry.textContent = `[${time}] ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+        }
+
+        // ====================
+        // Utility functions
+        // ====================
+
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '-';
+            return new Intl.NumberFormat('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(num);
+        }
+
+        function formatPercent(num) {
+            if (num === null || num === undefined) return '-';
+            return (num * 100).toFixed(2) + '%';
+        }
+
+        // ====================
+        // Initialize
+        // ====================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initWebSocket();
+            refreshAccount();
+            refreshPositions();
+            refreshOrders();
+            refreshStrategies();
+            refreshLocalData();
+            refreshBacktests();
+
+            // Refresh data periodically
+            setInterval(() => {
+                refreshAccount();
+                refreshPositions();
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

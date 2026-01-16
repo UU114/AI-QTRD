@@ -1,0 +1,268 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AI Trading Strategy Configuration",
+  "description": "JSON Schema for AI-enhanced trading strategy configuration",
+  "type": "object",
+  "required": ["strategy_name", "universe", "entry_rules", "exit_rules"],
+  "properties": {
+    "strategy_name": {
+      "type": "string",
+      "description": "Unique strategy identifier",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "minLength": 3,
+      "maxLength": 50
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable strategy description",
+      "maxLength": 500
+    },
+    "universe": {
+      "type": "object",
+      "description": "Stock universe definition",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["index_component", "custom_list", "filter_based"],
+          "description": "Universe selection method"
+        },
+        "index": {
+          "type": "string",
+          "description": "Index code for component stocks (e.g., 000300.SSE for CSI300)",
+          "pattern": "^\\d{6}\\.(SSE|SZSE)$"
+        },
+        "symbols": {
+          "type": "array",
+          "description": "Custom stock symbol list",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d{6}\\.(SSE|SZSE)$"
+          }
+        },
+        "filters": {
+          "type": "array",
+          "description": "Filter conditions for filter_based universe",
+          "items": {
+            "$ref": "#/definitions/filter_condition"
+          }
+        }
+      }
+    },
+    "entry_rules": {
+      "type": "object",
+      "description": "Entry signal generation rules",
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "description": "List of entry conditions",
+          "items": {
+            "$ref": "#/definitions/indicator_condition"
+          },
+          "minItems": 1
+        },
+        "logic": {
+          "type": "string",
+          "enum": ["and", "or"],
+          "default": "and",
+          "description": "Logic operator between conditions"
+        },
+        "ai_enhanced": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to use AI for fuzzy judgment"
+        },
+        "ai_factors": {
+          "type": "array",
+          "description": "AI analysis factors to consider",
+          "items": {
+            "type": "string",
+            "enum": ["news_sentiment", "market_emotion", "sector_rotation", "volume_analysis"]
+          }
+        },
+        "ai_weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.3,
+          "description": "Weight of AI signal in final decision"
+        }
+      }
+    },
+    "exit_rules": {
+      "type": "object",
+      "description": "Exit/closing rules",
+      "properties": {
+        "take_profit": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Take profit percentage (0.1 = 10%)"
+        },
+        "stop_loss": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Stop loss percentage (0.05 = 5%)"
+        },
+        "trailing_stop": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Trailing stop percentage"
+        },
+        "holding_days": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum holding period in trading days"
+        },
+        "conditions": {
+          "type": "array",
+          "description": "Additional exit conditions",
+          "items": {
+            "$ref": "#/definitions/indicator_condition"
+          }
+        }
+      }
+    },
+    "risk_control": {
+      "type": "object",
+      "description": "Risk management settings",
+      "properties": {
+        "max_positions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 30,
+          "description": "Maximum number of positions"
+        },
+        "position_size": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 1,
+          "default": 0.03,
+          "description": "Single position size as ratio of total capital"
+        },
+        "max_drawdown": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.15,
+          "description": "Maximum drawdown limit"
+        },
+        "daily_loss_limit": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Daily loss limit"
+        },
+        "sector_concentration": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.3,
+          "description": "Maximum sector concentration ratio"
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "Order execution settings",
+      "properties": {
+        "order_type": {
+          "type": "string",
+          "enum": ["market", "limit", "vwap"],
+          "default": "limit"
+        },
+        "price_slippage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1,
+          "default": 0.002,
+          "description": "Expected price slippage"
+        },
+        "execution_window": {
+          "type": "string",
+          "description": "Preferred execution time window"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "indicator_condition": {
+      "type": "object",
+      "required": ["indicator", "operator", "value"],
+      "properties": {
+        "indicator": {
+          "type": "string",
+          "description": "Technical indicator name",
+          "enum": [
+            "RSI", "MA", "SMA", "EMA", "MACD", "MACD_SIGNAL", "MACD_HIST",
+            "KDJ_K", "KDJ_D", "KDJ_J", "BOLL_UPPER", "BOLL_MIDDLE", "BOLL_LOWER",
+            "VOL", "VOL_MA", "VOL_RATIO", "TURNOVER", "CLOSE", "OPEN", "HIGH", "LOW",
+            "PRICE_CHANGE", "PRICE_CHANGE_PCT", "ATR", "OBV"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "description": "Indicator parameters",
+          "properties": {
+            "period": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 250
+            },
+            "fast_period": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "slow_period": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "signal_period": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "operator": {
+          "type": "string",
+          "enum": [">", "<", ">=", "<=", "==", "!=", "cross_above", "cross_below"],
+          "description": "Comparison operator"
+        },
+        "value": {
+          "oneOf": [
+            {"type": "number"},
+            {"type": "string"}
+          ],
+          "description": "Comparison value (number or another indicator)"
+        },
+        "logic": {
+          "type": "string",
+          "enum": ["and", "or"],
+          "default": "and",
+          "description": "Logic connection with next condition"
+        }
+      }
+    },
+    "filter_condition": {
+      "type": "object",
+      "required": ["field", "operator", "value"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field to filter on",
+          "enum": ["market_cap", "pe_ratio", "pb_ratio", "roe", "sector", "industry"]
+        },
+        "operator": {
+          "type": "string",
+          "enum": [">", "<", ">=", "<=", "==", "!=", "in", "not_in"]
+        },
+        "value": {
+          "description": "Filter value"
+        }
+      }
+    }
+  }
+}
